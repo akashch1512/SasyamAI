@@ -1,0 +1,26 @@
+# Python
+**/.venv/
+**/__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+.env.*
+
+# Python tools
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Flutter / Dart
+**/.dart_tool/
+**/build/
+**/.packages
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -24,6 +24,12 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SasyamAI uses the camera to scan crops for disease detection.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>SasyamAI uses your location to provide regional farm advice.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SasyamAI uses the microphone to capture voice questions.</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

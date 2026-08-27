@@ -1,0 +1,51 @@
+name: Build Flutter iOS Application
+
+on:
+  push:
+    branches:
+      - main  # Adjust to match your active branch if needed (e.g., master)
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest  # iOS builds REQUIRE macOS runners
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK  # Required by some Flutter toolchain scripts
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter Dependencies
+        run: |
+          cd flutterfrontend
+          flutter pub get
+
+      - name: Build iOS App (Unsigned)
+        run: |
+          cd flutterfrontend
+          flutter build ios --release --no-codesign
+
+      - name: Package iOS Payload (.ipa)
+        run: |
+          cd flutterfrontend/build/ios/iphoneos
+          mkdir Payload
+          mv Runner.app Payload/
+          zip -r Runner.ipa Payload
+
+      - name: Upload iOS IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ios-ipa
+          path: flutterfrontend/build/ios/iphoneos/Runner.ipa
+          retention-days: 7

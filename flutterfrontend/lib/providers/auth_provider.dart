@@ -262,6 +262,8 @@ class AuthProvider with ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(ApiConstants.userKey, _currentUser!.toJsonString());
         notifyListeners();
+      } else if (response.statusCode == 401) {
+        await logout();
       }
     } catch (_) {}
   }

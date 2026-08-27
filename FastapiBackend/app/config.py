@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,7 +21,10 @@ class Settings(BaseSettings):
     )
 
     # JWT Authentication
-    JWT_SECRET_KEY: str = "sasyamai-super-secret-jwt-key-change-in-production-2026"
+    JWT_SECRET_KEY: str = Field(
+        default="sasyamai-super-secret-jwt-key-change-in-production-2026",
+        min_length=32,
+    )
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 

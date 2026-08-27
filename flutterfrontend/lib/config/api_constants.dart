@@ -1,7 +1,7 @@
 class ApiConstants {
   // Default base URL (configurable by user in settings)
   // For Android Emulator use: http://10.0.2.2:8000
-  // For Linux/macOS/Desktop/Web use: http://127.0.0.1:8000
+  // For Linux/macOS/Desktop/Web use: 
   static const String defaultBaseUrl = 'https://sasyamai.onrender.com';
 
   // Storage Keys

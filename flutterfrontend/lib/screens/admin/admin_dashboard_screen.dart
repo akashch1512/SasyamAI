@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/theme.dart';
 import '../../providers/admin_provider.dart';
 import 'widgets/admin_chart_card.dart';
@@ -13,7 +14,8 @@ class AdminDashboardScreen extends StatefulWidget {
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> with SingleTickerProviderStateMixin {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -38,11 +40,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     final insights = admin.insights;
 
     return Scaffold(
-      backgroundColor: AppTheme.surfaceWhite,
+      backgroundColor: AppTheme.warmSand,
       appBar: AppBar(
-        title: const Text(
-          'Admin Analytics Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        backgroundColor: AppTheme.warmSand,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Farm intelligence',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            Text(
+              'Admin workspace',
+              style: TextStyle(
+                fontSize: 11,
+                color: AppTheme.textMuted,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
@@ -50,25 +66,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppTheme.primaryGreen),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppTheme.primaryGreen,
+            ),
             tooltip: 'Refresh Analytics',
             onPressed: () => admin.fetchAllAdminData(),
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelPadding: const EdgeInsets.symmetric(horizontal: 14),
           indicatorColor: AppTheme.primaryGreen,
+          indicatorSize: TabBarIndicatorSize.label,
           labelColor: AppTheme.primaryGreen,
           unselectedLabelColor: AppTheme.textMuted,
           tabs: const [
-            Tab(icon: Icon(Icons.analytics_outlined, size: 18), text: 'Overview'),
-            Tab(icon: Icon(Icons.psychology_outlined, size: 18), text: 'AI Insights'),
+            Tab(
+              icon: Icon(Icons.analytics_outlined, size: 18),
+              text: 'Overview',
+            ),
+            Tab(
+              icon: Icon(Icons.psychology_outlined, size: 18),
+              text: 'AI Insights',
+            ),
             Tab(icon: Icon(Icons.people_outline, size: 18), text: 'Farmers'),
           ],
         ),
       ),
       body: admin.isLoading && stats == null
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+            )
           : TabBarView(
               controller: _tabController,
               children: [
@@ -91,44 +122,110 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.deepGreen,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.deepGreen.withValues(alpha: .16),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: const Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Today at a glance',
+                        style: TextStyle(
+                          color: Color(0xFFC4E7D0),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        'Make every farmer interaction count.',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          height: 1.2,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 12),
+                CircleAvatar(
+                  radius: 25,
+                  backgroundColor: Color(0xFF2D9A6A),
+                  child: Icon(
+                    Icons.insights_rounded,
+                    color: Colors.white,
+                    size: 25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Platform pulse',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textDark,
+            ),
+          ),
+          const SizedBox(height: 10),
           // 4 KPI Summary Cards Grid
-          GridView.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 1.35,
-            children: [
-              AdminStatCard(
-                title: 'Total Farmers',
-                value: '${stats.totalUsers}',
-                icon: Icons.people_alt_rounded,
-                color: AppTheme.primaryGreen,
-                subtitle: 'Registered users',
-              ),
-              AdminStatCard(
-                title: 'Total AI Inquiries',
-                value: '${stats.totalQueries}',
-                icon: Icons.forum_rounded,
-                color: const Color(0xFF1E88E5),
-                subtitle: 'Chat queries logged',
-              ),
-              AdminStatCard(
-                title: 'Disease Scans',
-                value: '${stats.totalDiseaseScans}',
-                icon: Icons.document_scanner_outlined,
-                color: const Color(0xFFE53935),
-                subtitle: 'Leaf photo diagnoses',
-              ),
-              AdminStatCard(
-                title: 'Crop Recomms',
-                value: '${stats.totalCropRecommendations}',
-                icon: Icons.spa_rounded,
-                color: const Color(0xFFFB8C00),
-                subtitle: 'ML suitability runs',
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) => GridView.count(
+              crossAxisCount: constraints.maxWidth > 680 ? 4 : 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: constraints.maxWidth > 680 ? 1.35 : 0.98,
+              children: [
+                AdminStatCard(
+                  title: 'Total Farmers',
+                  value: '${stats.totalUsers}',
+                  icon: Icons.people_alt_rounded,
+                  color: AppTheme.primaryGreen,
+                  subtitle: 'Registered users',
+                ),
+                AdminStatCard(
+                  title: 'Total AI Inquiries',
+                  value: '${stats.totalQueries}',
+                  icon: Icons.forum_rounded,
+                  color: const Color(0xFF1E88E5),
+                  subtitle: 'Chat queries logged',
+                ),
+                AdminStatCard(
+                  title: 'Disease Scans',
+                  value: '${stats.totalDiseaseScans}',
+                  icon: Icons.document_scanner_outlined,
+                  color: const Color(0xFFE53935),
+                  subtitle: 'Leaf photo diagnoses',
+                ),
+                AdminStatCard(
+                  title: 'Crop Recomms',
+                  value: '${stats.totalCropRecommendations}',
+                  icon: Icons.spa_rounded,
+                  color: const Color(0xFFFB8C00),
+                  subtitle: 'ML suitability runs',
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -149,11 +246,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.trending_up_rounded, color: AppTheme.primaryGreen, size: 20),
+                    Icon(
+                      Icons.trending_up_rounded,
+                      color: AppTheme.primaryGreen,
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
-                    Text(
-                      'Top Inquired Crops',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                    Expanded(
+                      child: Text(
+                        'Top Inquired Crops',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -169,18 +278,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                           Expanded(
                             child: Text(
                               crop.cropName,
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppTheme.textDark),
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textDark,
+                              ),
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppTheme.paleGreen,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '${crop.inquiryCount} searches',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryGreen,
+                              ),
                             ),
                           ),
                         ],
@@ -205,11 +325,23 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.history_rounded, color: AppTheme.primaryGreen, size: 20),
+                    Icon(
+                      Icons.history_rounded,
+                      color: AppTheme.primaryGreen,
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
-                    Text(
-                      'Recent Farmer Searches',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                    Expanded(
+                      child: Text(
+                        'Recent Farmer Searches',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textDark,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -221,7 +353,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: admin.recentQueries.take(6).length,
-                    separatorBuilder: (context, index) => const Divider(color: AppTheme.borderGrey, height: 16),
+                    separatorBuilder: (context, index) =>
+                        const Divider(color: AppTheme.borderGrey, height: 16),
                     itemBuilder: (context, index) {
                       final q = admin.recentQueries[index];
                       return Column(
@@ -230,44 +363,108 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                q.userName,
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                              Expanded(
+                                child: Text(
+                                  q.userName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.primaryGreen,
+                                  ),
+                                ),
                               ),
-                              Text(
-                                DateFormat('MMM d, h:mm a').format(q.createdAt),
-                                style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  DateFormat('MMM d, h:mm a')
+                                      .format(q.createdAt),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 3),
                           Text(
                             q.queryText,
-                            style: const TextStyle(fontSize: 13.5, color: AppTheme.textDark),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              color: AppTheme.textDark,
+                            ),
                           ),
-                          if (q.detectedCrop != null || q.detectedDisease != null) ...[
-                            const SizedBox(height: 4),
+                          if (q.detectedCrop != null ||
+                              q.detectedDisease != null) ...[
+                            const SizedBox(height: 6),
                             Wrap(
-                              spacing: 6,
+                              spacing: 8,
+                              runSpacing: 6,
                               children: [
                                 if (q.detectedCrop != null)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: AppTheme.surfaceWhite,
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: AppTheme.borderGrey),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: AppTheme.borderGrey,
+                                      ),
                                     ),
-                                    child: Text('🌾 ${q.detectedCrop}', style: const TextStyle(fontSize: 11, color: AppTheme.textDark)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.eco_rounded,
+                                          size: 12,
+                                          color: AppTheme.primaryGreen,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          q.detectedCrop!,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppTheme.textDark,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 if (q.detectedDisease != null)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: const Color(0xFFFFEBEE),
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Text('🔬 ${q.detectedDisease}', style: const TextStyle(fontSize: 11, color: Colors.red)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.medical_information_rounded,
+                                          size: 12,
+                                          color: Color(0xFFE53935),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          q.detectedDisease!,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: Color(0xFFE53935),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                               ],
                             ),
@@ -300,25 +497,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             decoration: BoxDecoration(
               color: AppTheme.paleGreen,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.accentGreen.withValues(alpha: 0.4)),
+              border: Border.all(
+                color: AppTheme.accentGreen.withValues(alpha: 0.4),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.auto_awesome, color: AppTheme.primaryGreen, size: 20),
+                    Icon(
+                      Icons.auto_awesome,
+                      color: AppTheme.primaryGreen,
+                      size: 20,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'AI Trend Intelligence',
-                      style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryGreen, fontSize: 13),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryGreen,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   insights.summaryHeadline,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark, height: 1.3),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textDark,
+                    height: 1.3,
+                  ),
                 ),
               ],
             ),
@@ -364,7 +576,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
     );
   }
 
-  Widget _buildInsightSection(String title, IconData icon, List<String> items, Color accentColor) {
+  Widget _buildInsightSection(
+    String title,
+    IconData icon,
+    List<String> items,
+    Color accentColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -379,9 +596,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
             children: [
               Icon(icon, color: accentColor, size: 20),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textDark,
+                  ),
+                ),
               ),
             ],
           ),
@@ -392,11 +617,22 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('• ', style: TextStyle(color: accentColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    '• ',
+                    style: TextStyle(
+                      color: accentColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                   Expanded(
                     child: Text(
                       item,
-                      style: const TextStyle(fontSize: 13.5, color: AppTheme.textDark, height: 1.4),
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        color: AppTheme.textDark,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ],
@@ -432,7 +668,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
               CircleAvatar(
                 radius: 22,
                 backgroundColor: AppTheme.paleGreen,
-                backgroundImage: u.profileImageUrl != null ? NetworkImage(u.profileImageUrl!) : null,
+                backgroundImage: u.profileImageUrl != null
+                    ? NetworkImage(u.profileImageUrl!)
+                    : null,
                 child: u.profileImageUrl == null
                     ? const Icon(Icons.person, color: AppTheme.primaryGreen)
                     : null,
@@ -445,14 +683,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          u.fullName,
-                          style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                        Expanded(
+                          child: Text(
+                            u.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textDark,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: u.isAdmin ? AppTheme.paleGreen : AppTheme.surfaceWhite,
+                            color: u.isAdmin
+                                ? AppTheme.paleGreen
+                                : AppTheme.surfaceWhite,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(color: AppTheme.borderGrey),
                           ),
@@ -461,20 +713,66 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> with Single
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: u.isAdmin ? AppTheme.primaryGreen : AppTheme.textMuted,
+                              color: u.isAdmin
+                                  ? AppTheme.primaryGreen
+                                  : AppTheme.textMuted,
                             ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 2),
-                    Text(u.email, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
-                    if (u.phoneNumber != null)
-                      Text('📞 ${u.phoneNumber}', style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
-                    const SizedBox(height: 6),
                     Text(
-                      '🌾 ${u.state ?? 'Region'}, ${u.soilType ?? 'Soil'} • ${u.landSizeAcres?.toStringAsFixed(1) ?? 'N/A'} Acres',
-                      style: const TextStyle(fontSize: 12, color: AppTheme.textDark, fontWeight: FontWeight.w500),
+                      u.email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                    if (u.phoneNumber != null)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.call_rounded,
+                            size: 12,
+                            color: AppTheme.textMuted,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              u.phoneNumber!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.terrain_rounded,
+                          size: 12,
+                          color: AppTheme.primaryGreen,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            '${u.state ?? 'Region'}, ${u.soilType ?? 'Soil'} • ${u.landSizeAcres?.toStringAsFixed(1) ?? 'N/A'} Acres',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textDark,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

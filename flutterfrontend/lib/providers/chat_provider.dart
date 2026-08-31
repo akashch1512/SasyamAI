@@ -24,9 +24,13 @@ class ChatProvider with ChangeNotifier {
   bool get isSending => _isSending;
   List<String> get suggestedActions => _suggestedActions;
 
-  Future<void> fetchSessions() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> fetchSessions({bool showLoading = true}) async {
+    // A session refresh after an answer must not replace the active chat with
+    // the page-level spinner. It only updates the conversation drawer.
+    if (showLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
       final response = await ApiService().get(ApiConstants.chatSessionsEndpoint);
@@ -36,7 +40,9 @@ class ChatProvider with ChangeNotifier {
       }
     } catch (_) {}
 
-    _isLoading = false;
+    if (showLoading) {
+      _isLoading = false;
+    }
     notifyListeners();
   }
 
@@ -125,7 +131,7 @@ class ChatProvider with ChangeNotifier {
         }
 
         // Refresh session list
-        fetchSessions();
+        fetchSessions(showLoading: false);
 
         _isSending = false;
         notifyListeners();

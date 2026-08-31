@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
 import '../../widgets/app_logo.dart';
+import '../../widgets/assistant_avatar.dart';
 import '../../widgets/chat_bubble.dart';
 import '../../widgets/chat_input_bar.dart';
 import '../admin/admin_dashboard_screen.dart';
@@ -65,14 +67,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppTheme.backgroundWhite,
+      backgroundColor: AppTheme.warmSand,
       drawer: const ChatDrawer(),
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppTheme.textDark),
+          icon: const Icon(Icons.menu_open_rounded, color: AppTheme.textDark),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
-        title: const AppLogo(size: 28, fontSize: 17),
+        title: const AppLogo(size: 30, fontSize: 18),
         actions: [
           // Switch to Admin Dashboard button (visible for Admin)
           if (user?.isAdmin ?? false)
@@ -80,19 +82,41 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => const AdminDashboardScreen(),
+                  ),
                 );
               },
-              icon: const Icon(Icons.shield_outlined, size: 16, color: AppTheme.primaryGreen),
-              label: const Text('Admin', style: TextStyle(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold, fontSize: 13)),
+              icon: const Icon(
+                Icons.shield_rounded,
+                size: 16,
+                color: AppTheme.primaryGreen,
+              ),
+              label: const Text(
+                'Admin',
+                style: TextStyle(
+                  color: AppTheme.primaryGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
               style: TextButton.styleFrom(
                 backgroundColor: AppTheme.paleGreen,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           IconButton(
-            icon: const Icon(Icons.edit_square, color: AppTheme.primaryGreen, size: 20),
+            icon: const Icon(
+              Icons.auto_awesome_rounded,
+              color: AppTheme.primaryGreen,
+              size: 20,
+            ),
             tooltip: 'New Conversation',
             onPressed: () {
               chat.startNewChat();
@@ -106,10 +130,16 @@ class _ChatScreenState extends State<ChatScreen> {
           // Chat Messages List
           Expanded(
             child: chat.isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryGreen))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryGreen,
+                    ),
+                  )
+                : chat.messages.isEmpty
+                ? _buildEmptyState()
                 : ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                     itemCount: chat.messages.length + (chat.isSending ? 1 : 0),
                     itemBuilder: (context, index) {
                       if (index == chat.messages.length && chat.isSending) {
@@ -117,8 +147,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                       final message = chat.messages[index];
                       return ChatBubble(
+                        key: ValueKey(message.id),
                         message: message,
-                        onActionSelected: (action) => _onSendMessage(action, null),
+                        onTypingProgress: _scrollToBottom,
+                        onActionSelected: (action) =>
+                            _onSendMessage(action, null),
                       );
                     },
                   ),
@@ -140,11 +173,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: ActionChip(
                       label: Text(
                         action,
-                        style: const TextStyle(fontSize: 12.5, color: AppTheme.textDark),
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppTheme.textDark,
+                        ),
                       ),
                       backgroundColor: AppTheme.surfaceWhite,
                       side: const BorderSide(color: AppTheme.borderGrey),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       onPressed: () => _onSendMessage(action, null),
                     ),
                   );
@@ -169,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppLogo(size: 28, showText: false),
+          const AssistantAvatar(size: 30),
           const SizedBox(width: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -184,17 +222,65 @@ class _ChatScreenState extends State<ChatScreen> {
                 SizedBox(
                   width: 14,
                   height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryGreen),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppTheme.primaryGreen,
+                  ),
                 ),
                 SizedBox(width: 10),
                 Text(
                   'SasyamAI is analyzing farm data...',
-                  style: TextStyle(fontSize: 13, color: AppTheme.textMuted, fontStyle: FontStyle.italic),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textMuted,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                color: AppTheme.paleGreen,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.spa_rounded,
+                color: AppTheme.primaryGreen,
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Your farm companion is ready',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                color: AppTheme.textDark,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Ask about crops, prices, weather, or share a leaf photo for a quick diagnosis.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppTheme.textMuted, height: 1.45),
+            ),
+          ],
+        ),
       ),
     );
   }

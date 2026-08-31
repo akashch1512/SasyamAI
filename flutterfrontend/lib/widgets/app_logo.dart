@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+
 import '../config/theme.dart';
 
 class AppLogo extends StatelessWidget {
   final double size;
   final bool showText;
   final double fontSize;
+  final bool light;
 
   const AppLogo({
     super.key,
     this.size = 36.0,
     this.showText = true,
     this.fontSize = 20.0,
+    this.light = false,
   });
 
   @override
@@ -25,7 +28,10 @@ class AppLogo extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppTheme.paleGreen,
             borderRadius: BorderRadius.circular(size * 0.28),
-            border: Border.all(color: AppTheme.accentGreen.withValues(alpha: 0.3), width: 1.2),
+            border: Border.all(
+              color: AppTheme.accentGreen.withValues(alpha: 0.3),
+              width: 1.2,
+            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(size * 0.28),
@@ -50,7 +56,7 @@ class AppLogo extends StatelessWidget {
                 TextSpan(
                   text: 'Sasyam',
                   style: TextStyle(
-                    color: AppTheme.textDark,
+                    color: light ? Colors.white : AppTheme.textDark,
                     fontSize: fontSize,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,

@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors - Clean, Minimal, Farmer-First White & Green
-  static const Color primaryGreen = Color(0xFF2E7D32); // Agriculture Deep Green
-  static const Color lightGreen = Color(0xFF4CAF50);
-  static const Color paleGreen = Color(0xFFE8F5E9);
-  static const Color accentGreen = Color(0xFF81C784);
+  // A calm, earthy palette that stays legible outdoors and feels native on iOS.
+  static const Color primaryGreen = Color(0xFF176B4D);
+  static const Color lightGreen = Color(0xFF2D9A6A);
+  static const Color paleGreen = Color(0xFFE7F5EC);
+  static const Color accentGreen = Color(0xFF8FD1A8);
+  static const Color deepGreen = Color(0xFF103E31);
+  static const Color warmSand = Color(0xFFFFFCF6);
 
   static const Color backgroundWhite = Color(0xFFFFFFFF);
-  static const Color surfaceWhite = Color(0xFFF9FAF9);
+  static const Color surfaceWhite = Color(0xFFF5F8F5);
   static const Color cardWhite = Color(0xFFFFFFFF);
-  static const Color borderGrey = Color(0xFFE2E8F0);
-  static const Color textDark = Color(0xFF1A202C);
-  static const Color textMuted = Color(0xFF718096);
-  static const Color userBubbleColor = Color(0xFFF0FDF4); // Soft subtle mint
+  static const Color borderGrey = Color(0xFFDCE7DF);
+  static const Color textDark = Color(0xFF16352A);
+  static const Color textMuted = Color(0xFF6D8178);
+  static const Color userBubbleColor = Color(0xFFDFF3E7);
   static const Color errorRed = Color(0xFFE53E3E);
 
   static ThemeData get lightTheme {
@@ -30,12 +32,36 @@ class AppTheme {
         onSurface: textDark,
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: textDark),
-        displayMedium: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: textDark),
-        titleLarge: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w600, color: textDark),
-        titleMedium: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: textDark),
-        bodyLarge: GoogleFonts.inter(fontSize: 15, color: textDark, height: 1.5),
-        bodyMedium: GoogleFonts.inter(fontSize: 14, color: textDark, height: 1.4),
+        displayLarge: GoogleFonts.inter(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: textDark,
+        ),
+        displayMedium: GoogleFonts.inter(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: textDark,
+        ),
+        titleLarge: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: textDark,
+        ),
+        titleMedium: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textDark,
+        ),
+        bodyLarge: GoogleFonts.inter(
+          fontSize: 15,
+          color: textDark,
+          height: 1.5,
+        ),
+        bodyMedium: GoogleFonts.inter(
+          fontSize: 14,
+          color: textDark,
+          height: 1.4,
+        ),
         bodySmall: GoogleFonts.inter(fontSize: 12, color: textMuted),
       ),
       appBarTheme: const AppBarTheme(
@@ -43,21 +69,25 @@ class AppTheme {
         foregroundColor: textDark,
         elevation: 0,
         centerTitle: false,
-        scrolledUnderElevation: 1,
-        iconTheme: IconThemeData(color: textDark),
+        scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(color: textDark, size: 22),
       ),
+      iconTheme: const IconThemeData(color: textDark, size: 20),
       cardTheme: CardThemeData(
         color: cardWhite,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: borderGrey, width: 1),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceWhite,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         hintStyle: const TextStyle(color: textMuted, fontSize: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -77,9 +107,9 @@ class AppTheme {
           backgroundColor: primaryGreen,
           foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
           ),
           textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),

@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../config/theme.dart';
 import '../services/imgbb_service.dart';
 import '../services/voice_service.dart';
@@ -21,7 +23,8 @@ class ChatInputBar extends StatefulWidget {
   State<ChatInputBar> createState() => _ChatInputBarState();
 }
 
-class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderStateMixin {
+class _ChatInputBarState extends State<ChatInputBar>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   final VoiceService _voiceService = VoiceService();
 
@@ -37,18 +40,19 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-      lowerBound: 0.85,
-      upperBound: 1.15,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _pulseController.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          _pulseController.forward();
-        }
-      });
+    _pulseController =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 900),
+          lowerBound: 0.85,
+          upperBound: 1.15,
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            _pulseController.reverse();
+          } else if (status == AnimationStatus.dismissed) {
+            _pulseController.forward();
+          }
+        });
   }
 
   @override
@@ -103,7 +107,11 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
             children: [
               const Text(
                 'Upload Crop / Leaf Photo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textDark),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textDark,
+                ),
               ),
               const SizedBox(height: 12),
               ListTile(
@@ -121,7 +129,10 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
               ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: AppTheme.paleGreen,
-                  child: Icon(Icons.photo_library, color: AppTheme.primaryGreen),
+                  child: Icon(
+                    Icons.photo_library,
+                    color: AppTheme.primaryGreen,
+                  ),
                 ),
                 title: const Text('Choose from Gallery'),
                 subtitle: const Text('Select photo from phone storage'),
@@ -185,10 +196,10 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundWhite,
-        border: const Border(top: BorderSide(color: AppTheme.borderGrey, width: 1)),
+        color: AppTheme.warmSand,
+        border: const Border(top: BorderSide(color: AppTheme.borderGrey)),
       ),
       child: SafeArea(
         child: Column(
@@ -212,7 +223,10 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                         width: 44,
                         height: 44,
                         color: AppTheme.paleGreen,
-                        child: const Icon(Icons.image, color: AppTheme.primaryGreen),
+                        child: const Icon(
+                          Icons.image,
+                          color: AppTheme.primaryGreen,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -223,7 +237,9 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                             : 'Crop image ready for diagnosis',
                         style: TextStyle(
                           fontSize: 13,
-                          color: _isUploadingImage ? AppTheme.primaryGreen : AppTheme.textDark,
+                          color: _isUploadingImage
+                              ? AppTheme.primaryGreen
+                              : AppTheme.textDark,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -232,11 +248,18 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                       const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryGreen),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppTheme.primaryGreen,
+                        ),
                       )
                     else
                       IconButton(
-                        icon: const Icon(Icons.close, size: 18, color: Colors.grey),
+                        icon: const Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
                         onPressed: () {
                           setState(() {
                             _selectedImage = null;
@@ -253,8 +276,8 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Image Picker Button
-                IconButton(
-                  icon: const Icon(Icons.add_photo_alternate_outlined, color: AppTheme.primaryGreen),
+                _ComposerIconButton(
+                  icon: Icons.add_photo_alternate_outlined,
                   onPressed: widget.isSending ? null : _showImageSourcePicker,
                   tooltip: 'Upload Leaf Photo for Disease Diagnosis',
                 ),
@@ -276,8 +299,8 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                     ),
                   )
                 else
-                  IconButton(
-                    icon: const Icon(Icons.mic_none_rounded, color: AppTheme.primaryGreen),
+                  _ComposerIconButton(
+                    icon: Icons.mic_none_rounded,
                     onPressed: widget.isSending ? null : _toggleVoiceRecording,
                     tooltip: 'Speak in Hindi / Regional Language (Sarvam STT)',
                   ),
@@ -287,8 +310,8 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceWhite,
-                      borderRadius: BorderRadius.circular(24),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
                       border: Border.all(color: AppTheme.borderGrey),
                     ),
                     child: _isRecordingVoice
@@ -296,9 +319,18 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             child: Row(
                               children: [
-                                const Text('🎙️ Listening...', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                const Text(
+                                  '🎙️ Listening...',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 const Spacer(),
-                                Text('00:${_recordingSeconds.toString().padLeft(2, '0')}s', style: const TextStyle(color: Colors.grey)),
+                                Text(
+                                  '00:${_recordingSeconds.toString().padLeft(2, '0')}s',
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
                               ],
                             ),
                           )
@@ -306,15 +338,24 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                             controller: _textController,
                             maxLines: 4,
                             minLines: 1,
-                            style: const TextStyle(color: AppTheme.textDark, fontSize: 15),
+                            style: const TextStyle(
+                              color: AppTheme.textDark,
+                              fontSize: 15,
+                            ),
                             decoration: const InputDecoration(
-                              hintText: 'Message SasyamAI (e.g. crop advice, disease)...',
-                              hintStyle: TextStyle(color: AppTheme.textMuted, fontSize: 14),
+                              hintText:
+                                  'Ask about your crops, soil, or prices…',
+                              hintStyle: TextStyle(
+                                color: AppTheme.textMuted,
+                                fontSize: 14,
+                              ),
                               border: InputBorder.none,
                               enabledBorder: InputBorder.none,
                               focusedBorder: InputBorder.none,
                               filled: false,
-                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 10,
+                              ),
                             ),
                             onSubmitted: (_) => _handleSend(),
                           ),
@@ -323,17 +364,28 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
                 const SizedBox(width: 8),
 
                 // Send Button
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: AppTheme.primaryGreen,
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.primaryGreen,
+                    shape: BoxShape.circle,
+                  ),
                   child: widget.isSending
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : IconButton(
-                          icon: const Icon(Icons.arrow_upward_rounded, color: Colors.white, size: 20),
+                          icon: const Icon(
+                            Icons.arrow_upward_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           onPressed: widget.isSending ? null : _handleSend,
                           tooltip: 'Send message',
                         ),
@@ -343,6 +395,28 @@ class _ChatInputBarState extends State<ChatInputBar> with SingleTickerProviderSt
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ComposerIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String tooltip;
+
+  const _ComposerIconButton({
+    required this.icon,
+    required this.onPressed,
+    required this.tooltip,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon, color: AppTheme.primaryGreen),
+      onPressed: onPressed,
+      tooltip: tooltip,
+      style: IconButton.styleFrom(backgroundColor: AppTheme.paleGreen),
     );
   }
 }

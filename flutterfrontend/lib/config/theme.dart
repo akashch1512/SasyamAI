@@ -17,7 +17,10 @@ class AppTheme {
   static const Color textDark = Color(0xFF16352A);
   static const Color textMuted = Color(0xFF6D8178);
   static const Color userBubbleColor = Color(0xFFDFF3E7);
-  static const Color errorRed = Color(0xFFE53E3E);
+  static const Color harvestGold = Color(0xFFE8A317);
+  static const Color skyBlue = Color(0xFF2F8FDB);
+  static const Color terracotta = Color(0xFFD9763A);
+  static const Color schemeTeal = Color(0xFF1A9B8E);
 
   static ThemeData get lightTheme {
     return ThemeData(

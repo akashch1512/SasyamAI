@@ -2,7 +2,7 @@ class ApiConstants {
   // Default base URL (configurable by user in settings)
   // For Android Emulator use: http://10.0.2.2:8000
   // For Linux/macOS/Desktop/Web use: 
-  static const String defaultBaseUrl = 'https://sasyamai.onrender.com';
+  static const String defaultBaseUrl = 'http://localhost:8000';
 
   // Storage Keys
   static const String tokenKey = 'auth_token';
@@ -24,6 +24,7 @@ class ApiConstants {
   static const String chatMessageEndpoint = '/api/chat/message';
 
   static const String voiceTranscribeEndpoint = '/api/voice/transcribe';
+  static const String voiceTtsEndpoint = '/api/voice/tts';
 
   static const String adminStatsEndpoint = '/api/admin/stats';
   static const String adminUsersEndpoint = '/api/admin/users';

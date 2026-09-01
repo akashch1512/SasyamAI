@@ -366,24 +366,40 @@ Based on your farm profile (**Location:** {state_loc or "Regional zone"}, **Soil
 
 async def crop_price_node(state: AgentState) -> dict[str, Any]:
     """Handle crop market / mandi price queries."""
-    crop = state.get("detected_crop") or "your crop"
-    fetch_crop_market_price(crop_name=crop)
+    profile = state.get("user_profile", {})
+    crop = state.get("detected_crop") or profile.get("primary_crops") or "Wheat"
+    price = fetch_crop_market_price(
+        crop_name=crop,
+        state=profile.get("state"),
+        district=profile.get("district"),
+    )
+    location = price.get("mandi_name") or profile.get("state") or "your mandi"
 
-    response_text = f"""### 📊 Real-Time Mandi Prices
+    response_text = f"""### 📊 Mandi Price Guidance
 
-**Requested Commodity:** {crop}
+**Commodity:** {price.get("crop_name", crop)}
+**Market:** {location}
 
-This feature is not implemented yet, but it will be available soon. :)
+| Band | Rate |
+| --- | --- |
+| Modal (typical) | **{price.get("modal_price")} {price.get("unit")}** |
+| Low | {price.get("min_price")} {price.get("unit")} |
+| High | {price.get("max_price")} {price.get("unit")} |
 
-> *In the meantime, you can check official local APMC rates on the central Agmarknet portal (agmarknet.gov.in) or your state agricultural marketing board.*
+{price.get("note")}
+
+#### Selling tips
+• Arrive early and compare 2–3 lots before accepting a bid.
+• Check moisture and quality deductions; they often change the net rate more than the headline bhav.
+• Official daily arrivals: [agmarknet.gov.in](https://agmarknet.gov.in) and e-NAM.
 """
     return {
-        "crop_price_result": "not_implemented",
+        "crop_price_result": str(price.get("modal_price")),
         "final_response": response_text,
         "suggested_actions": [
-            "Recommend suitable crops instead",
+            f"Government schemes that help {price.get('crop_name', crop)} farmers",
             "How to increase crop yield?",
-            "Pest control tips",
+            "Recommend crops for my farm",
         ],
     }
 
@@ -392,25 +408,37 @@ async def government_schemes_node(state: AgentState) -> dict[str, Any]:
     """Handle central and state agricultural government schemes."""
     profile = state.get("user_profile", {})
     state_loc = profile.get("state")
-    fetch_government_schemes(state=state_loc)
+    user_msg = state.get("current_user_message", "")
+    result = fetch_government_schemes(
+        scheme_name=user_msg,
+        state=state_loc,
+        land_size_acres=profile.get("land_size_acres"),
+        crop_name=state.get("detected_crop"),
+    )
+    schemes = result.get("schemes", [])
+    location_line = f" for **{state_loc}**" if state_loc else ""
+    scheme_blocks = []
+    for scheme in schemes:
+        scheme_blocks.append(
+            f"#### {scheme['name']}\n"
+            f"• **Benefit:** {scheme['benefit']}\n"
+            f"• **How to apply:** {scheme['how_to_apply']}"
+        )
+    response_text = f"""### 🏛️ Government Agricultural Schemes{location_line}
 
-    response_text = """### 🏛️ Government Agricultural Schemes & Subsidies
+Carry Aadhaar, land records, and a bank passbook when you apply. District agriculture / horticulture offices can help with forms.
 
-This feature is not implemented yet, but it will be available soon. :)
+{chr(10).join(scheme_blocks)}
 
-> *Key national schemes you can explore in the meantime:*
-> • **PM-KISAN:** Direct income support of ₹6,000/year for landholding farmer families.
-> • **PMFBY (Crop Insurance):** Comprehensive insurance coverage against non-preventable natural risks.
-> • **Kisan Credit Card (KCC):** Concessional credit for agricultural inputs and machinery.
-> • **PM-KUSUM:** Subsidies for solar-powered agricultural irrigation pumps.
+> Keep photocopies and ask for an acknowledgement number after every application.
 """
     return {
-        "government_schemes_result": "not_implemented",
+        "government_schemes_result": schemes[0]["name"] if schemes else "schemes",
         "final_response": response_text,
         "suggested_actions": [
             "Crop recommendation for my land",
-            "How to test soil health?",
-            "Check disease symptoms",
+            "Check mandi price of wheat",
+            "How to apply for a solar pump subsidy?",
         ],
     }
 

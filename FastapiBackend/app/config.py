@@ -33,9 +33,10 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o"
     MAX_OUTPUT_TOKEN: int = 800
 
-    # Sarvam AI Saaras v3
+    # Sarvam AI Saaras v3 STT + Bulbul TTS
     SARVAM_API_KEY: str | None = None
     SARVAM_STT_URL: str = "https://api.sarvam.ai/speech-to-text"
+    SARVAM_TTS_URL: str = "https://api.sarvam.ai/text-to-speech"
 
     # ImgBB API
     IMGBB_API_KEY: str | None = None

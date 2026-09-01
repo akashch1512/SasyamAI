@@ -11,12 +11,16 @@ class ChatBubble extends StatefulWidget {
   final ChatMessageModel message;
   final Function(String)? onActionSelected;
   final VoidCallback? onTypingProgress;
+  final VoidCallback? onSpeak;
+  final bool isSpeaking;
 
   const ChatBubble({
     super.key,
     required this.message,
     this.onActionSelected,
     this.onTypingProgress,
+    this.onSpeak,
+    this.isSpeaking = false,
   });
 
   @override
@@ -258,6 +262,45 @@ class _ChatBubbleState extends State<ChatBubble> {
                         height: 16,
                         child: DecoratedBox(
                           decoration: BoxDecoration(color: AppTheme.lightGreen),
+                        ),
+                      ),
+                    ),
+                  if (!_isTyping && widget.onSpeak != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: InkWell(
+                        onTap: widget.onSpeak,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.paleGreen,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                widget.isSpeaking
+                                    ? Icons.stop_circle_rounded
+                                    : Icons.volume_up_rounded,
+                                size: 16,
+                                color: AppTheme.primaryGreen,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                widget.isSpeaking ? 'Stop voice' : 'Play voice',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.primaryGreen,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

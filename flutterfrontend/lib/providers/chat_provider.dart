@@ -23,6 +23,7 @@ class ChatProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isSending => _isSending;
   List<String> get suggestedActions => _suggestedActions;
+  bool get hasStartedChat => _messages.any((m) => m.role == 'user');
 
   Future<void> fetchSessions({bool showLoading = true}) async {
     // A session refresh after an answer must not replace the active chat with
@@ -66,15 +67,7 @@ class ChatProvider with ChangeNotifier {
 
   void startNewChat() {
     _activeSessionId = null;
-    _messages = [
-      ChatMessageModel(
-        id: 'welcome',
-        sessionId: '',
-        role: 'assistant',
-        content: 'Namaste! 🙏 I am SasyamAI, your dedicated agricultural assistant.\n\nHow can I help you with your farm today? You can ask about crop recommendations, upload leaf photos for disease diagnosis, or inquire about farm management practices.',
-        createdAt: DateTime.now(),
-      ),
-    ];
+    _messages = [];
     _suggestedActions = [
       "Recommend crops for my farm",
       "How to manage yellow leaf disease?",

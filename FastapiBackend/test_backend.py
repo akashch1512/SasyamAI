@@ -88,8 +88,8 @@ async def test_backend_suite():
         )
         assert res.status_code == 200
         price_res = res.json()
-        assert "not implemented yet" in price_res["assistant_message"]["content"]
-        print("   Price query response verified (placeholder active).")
+        assert "Mandi Price" in price_res["assistant_message"]["content"]
+        print("   Price query response verified.")
 
         print("6. Testing LangGraph Chat Agent - Government Schemes...")
         chat_req_scheme = {
@@ -101,8 +101,8 @@ async def test_backend_suite():
         )
         assert res.status_code == 200
         scheme_res = res.json()
-        assert "not implemented yet" in scheme_res["assistant_message"]["content"]
-        print("   Government scheme response verified (placeholder active).")
+        assert "PM-KUSUM" in scheme_res["assistant_message"]["content"]
+        print("   Government scheme response verified.")
 
         print("7. Testing LangGraph Chat Agent - Image-based Disease Detection...")
         chat_req_image = {
@@ -128,6 +128,17 @@ async def test_backend_suite():
         assert res.status_code == 200
         stt_res = res.json()
         print(f"   Transcribed text: '{stt_res['transcript']}' ({stt_res['detected_language']})")
+
+        print("8b. Testing Sarvam Text-To-Speech Route...")
+        tts_res = await client.post(
+            "/api/voice/tts",
+            json={"text": "Wheat is ready for harvest.", "language_code": "en-IN"},
+            headers=headers,
+        )
+        assert tts_res.status_code == 200
+        tts_body = tts_res.json()
+        assert "audio_base64" in tts_body
+        print(f"   TTS fallback={tts_body.get('is_fallback')} speaker={tts_body.get('speaker')}")
 
         print("9. Testing Admin Dashboard Login & Stats...")
         admin_login = await client.post(

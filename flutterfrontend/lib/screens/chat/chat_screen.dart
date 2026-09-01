@@ -4,12 +4,17 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/chat_provider.dart';
+import '../../services/tts_service.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/assistant_avatar.dart';
+import '../../widgets/chat_bottom_bar.dart';
 import '../../widgets/chat_bubble.dart';
 import '../../widgets/chat_input_bar.dart';
+import '../../widgets/feature_showcase.dart';
 import '../admin/admin_dashboard_screen.dart';
-import 'components/chat_drawer.dart';
+import '../profile/profile_screen.dart';
+import '../settings/settings_screen.dart';
+import 'components/chat_history_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -20,7 +25,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _navIndex = 1;
 
   @override
   void initState() {
@@ -28,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chat = Provider.of<ChatProvider>(context, listen: false);
       chat.fetchSessions();
-      if (chat.messages.isEmpty) {
+      if (chat.messages.isEmpty && chat.activeSessionId == null) {
         chat.startNewChat();
       }
     });
@@ -52,11 +57,26 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _onSendMessage(String text, String? imageUrl) async {
+  Future<void> _onSendMessage(String text, String? imageUrl) async {
     final chat = Provider.of<ChatProvider>(context, listen: false);
+    final auth = Provider.of<AuthProvider>(context, listen: false);
     _scrollToBottom();
-    await chat.sendMessage(text: text, imageUrl: imageUrl);
+    final ok = await chat.sendMessage(text: text, imageUrl: imageUrl);
     _scrollToBottom();
+    if (!ok || !mounted) return;
+
+    final reply = chat.messages.lastWhere(
+      (m) => !m.isUser,
+      orElse: () => chat.messages.last,
+    );
+    if (!reply.isUser) {
+      await TtsService.instance.speak(
+        text: reply.content,
+        languageCode: auth.currentUser?.preferredLanguage ?? 'hi-IN',
+        messageId: reply.id,
+      );
+      if (mounted) setState(() {});
+    }
   }
 
   @override
@@ -64,19 +84,14 @@ class _ChatScreenState extends State<ChatScreen> {
     final chat = Provider.of<ChatProvider>(context);
     final auth = Provider.of<AuthProvider>(context);
     final user = auth.currentUser;
+    final showFeatures = !chat.hasStartedChat && !chat.isSending;
 
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: AppTheme.warmSand,
-      drawer: const ChatDrawer(),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.menu_open_rounded, color: AppTheme.textDark),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        ),
+        automaticallyImplyLeading: false,
         title: const AppLogo(size: 30, fontSize: 18),
         actions: [
-          // Switch to Admin Dashboard button (visible for Admin)
           if (user?.isAdmin ?? false)
             TextButton.icon(
               onPressed: () {
@@ -112,14 +127,13 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           IconButton(
-            icon: const Icon(
-              Icons.auto_awesome_rounded,
-              color: AppTheme.primaryGreen,
-              size: 20,
-            ),
-            tooltip: 'New Conversation',
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined, size: 20),
             onPressed: () {
-              chat.startNewChat();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
             },
           ),
           const SizedBox(width: 4),
@@ -127,38 +141,64 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Chat Messages List
           Expanded(
-            child: chat.isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.primaryGreen,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 280),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: chat.isLoading
+                  ? const Center(
+                      key: ValueKey('loading'),
+                      child: CircularProgressIndicator(
+                        color: AppTheme.primaryGreen,
+                      ),
+                    )
+                  : showFeatures
+                  ? FeatureShowcase(
+                      key: const ValueKey('features'),
+                      farmerName: user?.fullName.split(' ').first ?? '',
+                      onFeatureSelected: (prompt) =>
+                          _onSendMessage(prompt, null),
+                    )
+                  : ListView.builder(
+                      key: const ValueKey('messages'),
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                      itemCount:
+                          chat.messages.length + (chat.isSending ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        if (index == chat.messages.length && chat.isSending) {
+                          return _buildThinkingIndicator();
+                        }
+                        final message = chat.messages[index];
+                        return ChatBubble(
+                          key: ValueKey(message.id),
+                          message: message,
+                          onTypingProgress: _scrollToBottom,
+                          onActionSelected: (action) =>
+                              _onSendMessage(action, null),
+                          isSpeaking:
+                              TtsService.instance.speakingMessageId ==
+                              message.id,
+                          onSpeak: message.isUser
+                              ? null
+                              : () async {
+                                  await TtsService.instance.toggle(
+                                    text: message.content,
+                                    languageCode:
+                                        user?.preferredLanguage ?? 'hi-IN',
+                                    messageId: message.id,
+                                  );
+                                  if (mounted) setState(() {});
+                                },
+                        );
+                      },
                     ),
-                  )
-                : chat.messages.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                    itemCount: chat.messages.length + (chat.isSending ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == chat.messages.length && chat.isSending) {
-                        return _buildThinkingIndicator();
-                      }
-                      final message = chat.messages[index];
-                      return ChatBubble(
-                        key: ValueKey(message.id),
-                        message: message,
-                        onTypingProgress: _scrollToBottom,
-                        onActionSelected: (action) =>
-                            _onSendMessage(action, null),
-                      );
-                    },
-                  ),
+            ),
           ),
-
-          // Suggested Action Chips (if applicable)
-          if (chat.suggestedActions.isNotEmpty && !chat.isSending)
+          if (chat.suggestedActions.isNotEmpty &&
+              !chat.isSending &&
+              chat.hasStartedChat)
             Container(
               height: 40,
               margin: const EdgeInsets.only(bottom: 6),
@@ -189,14 +229,31 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
-
-          // Bottom Chat Input Bar
           ChatInputBar(
             onSendMessage: _onSendMessage,
             isSending: chat.isSending,
             preferredLanguage: user?.preferredLanguage ?? 'hi-IN',
           ),
         ],
+      ),
+      bottomNavigationBar: ChatBottomBar(
+        currentIndex: _navIndex,
+        profileImageUrl: user?.profileImageUrl,
+        onHistory: () {
+          setState(() => _navIndex = 0);
+          showChatHistorySheet(context);
+        },
+        onNewChat: () {
+          setState(() => _navIndex = 1);
+          chat.startNewChat();
+        },
+        onProfile: () {
+          setState(() => _navIndex = 2);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        },
       ),
     );
   }
@@ -240,47 +297,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: const BoxDecoration(
-                color: AppTheme.paleGreen,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.spa_rounded,
-                color: AppTheme.primaryGreen,
-                size: 30,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Your farm companion is ready',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-                color: AppTheme.textDark,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'Ask about crops, prices, weather, or share a leaf photo for a quick diagnosis.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textMuted, height: 1.45),
-            ),
-          ],
-        ),
       ),
     );
   }
